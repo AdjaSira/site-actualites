@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestion des Jetons - Site d'Actualités</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      /* ... le CSS modernisé ... */
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      .sticky-header {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+      .header-brand {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 700;
+        font-size: 1.5rem;
+      }
+      .nav-pills .nav-link {
+        border-radius: 25px;
+        padding: 8px 20px;
+        margin: 0 5px;
+        transition: all 0.3s ease;
+      }
+      .nav-pills .nav-link:hover {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white !important;
+        transform: translateY(-2px);
+      }
+      .sidebar {
+        background: rgba(255, 255, 255, 0.1) !important;
+        backdrop-filter: blur(10px);
+        border-right: 1px solid rgba(255, 255, 255, 0.2);
+        min-height: calc(100vh - 80px);
+      }
+      .sidebar .nav-link {
+        color: rgba(255, 255, 255, 0.9) !important;
+        border-radius: 15px;
+        margin: 5px 10px;
+        padding: 12px 20px;
+        transition: all 0.3s ease;
+      }
+      .sidebar .nav-link.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white !important;
+      }
+      .main-content {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        margin: 20px;
+        padding: 30px;
+      }
+      .page-title {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 700;
+        margin-bottom: 30px;
+      }
+      .btn-generate {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        border: none;
+        border-radius: 25px;
+        padding: 12px 30px;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+      .btn-delete {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        border: none;
+        border-radius: 20px;
+        padding: 8px 16px;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+      .token-value {
+        font-family: "Courier New", monospace;
+        background: rgba(0, 0, 0, 0.05);
+        padding: 6px 10px;
+        border-radius: 8px;
+        word-break: break-all;
+        display: inline-block;
+        max-width: 200px;
+      }
+      .date-cell {
+        font-size: 0.9em;
+        color: #6c757d;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-fluid p-0">
+      <header class="sticky-header">
+        <div class="container-fluid">
+          <div
+            class="d-flex flex-wrap justify-content-between align-items-center py-3"
+          >
+            <a href="/" class="d-flex align-items-center text-decoration-none">
+              <span class="header-brand">
+                <i class="fas fa-newspaper me-2"></i>Site d'Actualités
+              </span>
+            </a>
+            <h3 class="mb-0 text-muted">
+              <i class="fas fa-shield-alt me-2"></i>Administration
+            </h3>
+            <ul class="nav nav-pills">
+              <li class="nav-item">
+                <a href="/" class="nav-link"
+                  ><i class="fas fa-home me-1"></i>Retour au site</a
+                >
+              </li>
+              <li class="nav-item">
+                <a href="/logout" class="nav-link"
+                  ><i class="fas fa-sign-out-alt me-1"></i>Déconnexion</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </header>
+
+      <div class="container-fluid">
+        <div class="row">
+          <!-- Sidebar -->
+          <nav class="col-md-3 col-lg-2 d-md-block sidebar">
+            <div class="position-sticky pt-3">
+              <ul class="nav flex-column">
+                <li class="nav-item">
+                  <a class="nav-link" href="/admin"
+                    ><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a
+                  >
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/admin/articles"
+                    ><i class="fas fa-newspaper me-2"></i>Articles</a
+                  >
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/admin/categories"
+                    ><i class="fas fa-tags me-2"></i>Catégories</a
+                  >
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/admin/utilisateurs"
+                    ><i class="fas fa-users me-2"></i>Utilisateurs</a
+                  >
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link active" href="/admin/tokens"
+                    ><i class="fas fa-key me-2"></i>Jetons</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </nav>
+
+          <!-- Main Content -->
+          <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="main-content">
+              <h2 class="page-title">
+                <i class="fas fa-key"></i> Gestion des Jetons
+              </h2>
+
+              <!-- Alertes -->
+              <div
+                th:if="${succes}"
+                class="alert alert-success"
+                role="alert"
+                th:text="${succes}"
+              ></div>
+              <div
+                th:if="${erreur}"
+                class="alert alert-danger"
+                role="alert"
+                th:text="${erreur}"
+              ></div>
+
+              <!-- Formulaire de génération -->
+              <div class="mb-4">
+                <h3>
+                  <i class="fas fa-plus-circle text-success"></i> Générer un
+                  nouveau jeton
+                </h3>
+                <form th:action="@{/admin/tokens/generer}" method="post">
+                  <div class="mb-3">
+                    <label for="userId" class="form-label">
+                      <i class="fas fa-user me-1"></i>Utilisateur
+                    </label>
+                    <select
+                      class="form-select"
+                      id="userId"
+                      name="userId"
+                      required
+                    >
+                      <option value="">Choisir un utilisateur</option>
+                      <option
+                        th:each="user : ${utilisateurs}"
+                        th:value="${user.id}"
+                        th:text="${user.login}"
+                      ></option>
+                    </select>
+                  </div>
+                  <button type="submit" class="btn btn-generate">
+                    <i class="fas fa-magic me-2"></i>Générer le jeton
+                  </button>
+                </form>
+              </div>
+
+              <!-- Liste des jetons -->
+              <h3 class="mb-3">
+                <i class="fas fa-list text-primary"></i> Liste des jetons
+              </h3>
+              <div th:if="${tokens.size() == 0}" class="text-muted">
+                Aucun jeton trouvé. Commencez par en générer un.
+              </div>
+              <div th:if="${tokens.size() > 0}" class="table-responsive">
+                <table class="table table-bordered align-middle">
+                  <thead class="table-light">
+                    <tr>
+                      <th>ID</th>
+                      <th>Valeur</th>
+                      <th>Utilisateur</th>
+                      <th>Date de création</th>
+                      <th>Date d'expiration</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr th:each="token : ${tokens}">
+                      <td th:text="${token.id}"></td>
+                      <td>
+                        <span
+                          class="token-value"
+                          th:text="${token.valeur}"
+                        ></span>
+                      </td>
+                      <td th:text="${token.user.login}"></td>
+                      <td
+                        class="date-cell"
+                        th:text="${token.dateCreation}"
+                      ></td>
+                      <td
+                        class="date-cell"
+                        th:text="${token.dateExpiration}"
+                      ></td>
+                      <td>
+                        <form
+                          th:action="@{/admin/tokens/supprimer/{id}(id=${token.id})}"
+                          method="post"
+                          style="display: inline"
+                        >
+                          <button type="submit" class="btn btn-delete">
+                            <i class="fas fa-trash me-1"></i>Supprimer
+                          </button>
+                        </form>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

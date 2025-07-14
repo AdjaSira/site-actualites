@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title
+      th:text="${article.id != null ? 'Modifier Article' : 'Nouvel Article'} + ' - Administration'"
+    >
+      Article - Administration
+    </title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        color: #2c3e50;
+      }
+
+      /* Header amélioré */
+      .admin-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1rem 0;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+
+      .admin-header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .admin-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white;
+        text-decoration: none;
+      }
+
+      .admin-brand:hover {
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+      }
+
+      .admin-brand i {
+        font-size: 1.8rem;
+        background: linear-gradient(45deg, #fff, #f0f0f0);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .admin-title {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .admin-title i {
+        color: #ffd700;
+      }
+
+      .admin-nav {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .user-dropdown {
+        position: relative;
+      }
+
+      .user-dropdown-toggle {
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+      }
+
+      .user-dropdown-toggle:hover {
+        color: white;
+        background: rgba(255, 255, 255, 0.1);
+        text-decoration: none;
+      }
+
+      .user-dropdown-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        min-width: 200px;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s ease;
+      }
+
+      .user-dropdown-menu.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      .user-dropdown-item {
+        display: block;
+        padding: 0.75rem 1rem;
+        color: #2c3e50;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border-radius: 8px;
+        margin: 0.25rem;
+      }
+
+      .user-dropdown-item:hover {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+        text-decoration: none;
+      }
+
+      .user-dropdown-divider {
+        height: 1px;
+        background: #e9ecef;
+        margin: 0.5rem 0;
+      }
+
+      /* Sidebar améliorée */
+      .admin-sidebar {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 0 16px 16px 0;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        min-height: calc(100vh - 80px);
+        position: sticky;
+        top: 80px;
+      }
+
+      .sidebar-nav {
+        padding: 2rem 0;
+      }
+
+      .sidebar-nav-item {
+        margin-bottom: 0.5rem;
+      }
+
+      .sidebar-nav-link {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 1.5rem;
+        color: #6c757d;
+        text-decoration: none;
+        border-radius: 8px;
+        margin: 0 1rem;
+        transition: all 0.3s ease;
+        font-weight: 500;
+      }
+
+      .sidebar-nav-link:hover,
+      .sidebar-nav-link.active {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        text-decoration: none;
+        transform: translateX(5px);
+      }
+
+      .sidebar-nav-link i {
+        width: 20px;
+        text-align: center;
+      }
+
+      /* Contenu principal */
+      .admin-main {
+        padding: 2rem;
+        min-height: calc(100vh - 80px);
+      }
+
+      .admin-page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+      }
+
+      .admin-page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin: 0;
+      }
+
+      .admin-page-title i {
+        color: #667eea;
+        font-size: 2rem;
+      }
+
+      .admin-back-btn {
+        background: linear-gradient(135deg, #6c757d, #495057);
+        border: none;
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        font-weight: 600;
+        color: white;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .admin-back-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(108, 117, 125, 0.3);
+        color: white;
+        text-decoration: none;
+      }
+
+      /* Alertes */
+      .alert {
+        border: none;
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .alert-success {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+      }
+
+      .alert-danger {
+        background: linear-gradient(135deg, #dc3545, #fd7e14);
+        color: white;
+      }
+
+      .alert .btn-close {
+        filter: brightness(0) invert(1);
+      }
+
+      /* Formulaire */
+      .form-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+      }
+
+      .form-header {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 1.5rem 2rem;
+        font-size: 1.3rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .form-body {
+        padding: 2rem;
+      }
+
+      .form-label {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .form-label i {
+        color: #667eea;
+        font-size: 0.9rem;
+      }
+
+      .required {
+        color: #dc3545;
+        font-weight: 700;
+      }
+
+      .form-control,
+      .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.9);
+      }
+
+      .form-control:focus,
+      .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        background: white;
+      }
+
+      .form-control::placeholder {
+        color: #6c757d;
+        opacity: 0.7;
+      }
+
+      .form-text {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .form-text i {
+        color: #667eea;
+      }
+
+      /* Compteur de caractères */
+      .char-counter {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+        color: #6c757d;
+      }
+
+      .char-counter .current {
+        color: #667eea;
+        font-weight: 600;
+      }
+
+      .char-counter .max {
+        color: #6c757d;
+      }
+
+      .char-counter.warning .current {
+        color: #fd7e14;
+      }
+
+      .char-counter.danger .current {
+        color: #dc3545;
+      }
+
+      /* Boutons d'action */
+      .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 2px solid rgba(102, 126, 234, 0.1);
+      }
+
+      .form-btn {
+        border: none;
+        border-radius: 12px;
+        padding: 1rem 2rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+      }
+
+      .form-btn.cancel {
+        background: linear-gradient(135deg, #6c757d, #495057);
+        color: white;
+      }
+
+      .form-btn.cancel:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(108, 117, 125, 0.3);
+        color: white;
+        text-decoration: none;
+      }
+
+      .form-btn.submit {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+      }
+
+      .form-btn.submit:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        color: white;
+        text-decoration: none;
+      }
+
+      .form-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none !important;
+        box-shadow: none !important;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .admin-header-content {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .admin-nav {
+          justify-content: center;
+        }
+
+        .admin-main {
+          padding: 1rem;
+        }
+
+        .admin-page-header {
+          flex-direction: column;
+          gap: 1rem;
+          text-align: center;
+        }
+
+        .admin-page-title {
+          font-size: 2rem;
+        }
+
+        .form-header {
+          text-align: center;
+        }
+
+        .form-body {
+          padding: 1.5rem;
+        }
+
+        .form-actions {
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        .form-btn {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .user-dropdown-menu {
+          position: fixed;
+          top: 80px;
+          left: 0;
+          right: 0;
+          border-radius: 0 0 16px 16px;
+        }
+      }
+
+      /* Animations */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .form-container {
+        animation: fadeInUp 0.6s ease-out;
+      }
+
+      /* Effets de focus améliorés */
+      .form-control:focus,
+      .form-select:focus {
+        outline: none;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="admin-header">
+      <div class="container-fluid">
+        <div class="admin-header-content">
+          <a href="/" class="admin-brand">
+            <i class="fas fa-newspaper"></i>
+            Site d'Actualités
+          </a>
+          <h1 class="admin-title">
+            <i class="fas fa-shield-alt"></i>
+            Administration
+          </h1>
+          <nav class="admin-nav">
+            <div class="user-dropdown">
+              <div class="user-dropdown-toggle" onclick="toggleDropdown()">
+                <i class="fas fa-user-circle"></i>
+                <span th:text="${session.utilisateurConnecte.login}"></span>
+                <i class="fas fa-chevron-down"></i>
+              </div>
+              <div class="user-dropdown-menu" id="userDropdown">
+                <a href="/" class="user-dropdown-item">
+                  <i class="fas fa-home me-2"></i>Retour au site
+                </a>
+                <div class="user-dropdown-divider"></div>
+                <a href="/logout" class="user-dropdown-item">
+                  <i class="fas fa-sign-out-alt me-2"></i>Déconnexion
+                </a>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <div class="container-fluid">
+      <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-3 col-lg-2 d-md-block admin-sidebar">
+          <div class="sidebar-nav">
+            <ul class="nav flex-column">
+              <li class="sidebar-nav-item">
+                <a class="sidebar-nav-link" href="/admin">
+                  <i class="fas fa-tachometer-alt"></i>
+                  Dashboard
+                </a>
+              </li>
+              <li class="sidebar-nav-item">
+                <a class="sidebar-nav-link active" href="/admin/articles">
+                  <i class="fas fa-newspaper"></i>
+                  Articles
+                </a>
+              </li>
+              <li class="sidebar-nav-item">
+                <a class="sidebar-nav-link" href="/admin/categories">
+                  <i class="fas fa-tags"></i>
+                  Catégories
+                </a>
+              </li>
+              <li class="sidebar-nav-item">
+                <a class="sidebar-nav-link" href="/admin/utilisateurs">
+                  <i class="fas fa-users"></i>
+                  Utilisateurs
+                </a>
+              </li>
+              <li class="sidebar-nav-item">
+                <a class="sidebar-nav-link" href="/admin/tokens">
+                  <i class="fas fa-key"></i>
+                  Jetons
+                </a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+
+        <!-- Contenu principal -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 admin-main">
+          <div class="admin-page-header">
+            <h1 class="admin-page-title">
+              <i class="fas fa-newspaper"></i>
+              <span
+                th:text="${article.id != null ? 'Modifier Article' : 'Nouvel Article'}"
+                >Nouvel Article</span
+              >
+            </h1>
+            <a href="/admin/articles" class="admin-back-btn">
+              <i class="fas fa-arrow-left"></i>
+              Retour à la liste
+            </a>
+          </div>
+
+          <!-- Messages d'alerte -->
+          <div
+            th:if="${succes}"
+            class="alert alert-success alert-dismissible fade show"
+            role="alert"
+          >
+            <i class="fas fa-check-circle"></i>
+            <span th:text="${succes}"></span>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="alert"
+            ></button>
+          </div>
+
+          <div
+            th:if="${erreur}"
+            class="alert alert-danger alert-dismissible fade show"
+            role="alert"
+          >
+            <i class="fas fa-exclamation-triangle"></i>
+            <span th:text="${erreur}"></span>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="alert"
+            ></button>
+          </div>
+
+          <!-- Formulaire -->
+          <div class="row justify-content-center">
+            <div class="col-lg-10">
+              <div class="form-container">
+                <div class="form-header">
+                  <i class="fas fa-pencil-alt"></i>
+                  Informations de l'article
+                </div>
+                <div class="form-body">
+                  <form
+                    th:action="@{/admin/articles/sauvegarder}"
+                    method="post"
+                    th:object="${article}"
+                    id="articleForm"
+                  >
+                    <!-- ID caché pour la modification -->
+                    <input type="hidden" th:field="*{id}" />
+
+                    <div class="row">
+                      <!-- Titre -->
+                      <div class="col-md-12 mb-3">
+                        <label for="titre" class="form-label">
+                          <i class="fas fa-heading"></i>
+                          Titre <span class="required">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="titre"
+                          name="titre"
+                          th:field="*{titre}"
+                          placeholder="Saisissez le titre de l'article"
+                          required
+                        />
+                      </div>
+
+                      <!-- Catégorie et Auteur -->
+                      <div class="col-md-6 mb-3">
+                        <label for="categoryId" class="form-label">
+                          <i class="fas fa-tag"></i>
+                          Catégorie <span class="required">*</span>
+                        </label>
+                        <select
+                          class="form-select"
+                          id="categoryId"
+                          name="categoryId"
+                          required
+                        >
+                          <option value="">Choisir une catégorie</option>
+                          <option
+                            th:each="cat : ${categories}"
+                            th:value="${cat.id}"
+                            th:text="${cat.nom}"
+                            th:selected="${article.category != null and article.category.id == cat.id}"
+                          ></option>
+                        </select>
+                      </div>
+
+                      <div class="col-md-6 mb-3">
+                        <label for="auteurId" class="form-label">
+                          <i class="fas fa-user"></i>
+                          Auteur <span class="required">*</span>
+                        </label>
+                        <select
+                          class="form-select"
+                          id="auteurId"
+                          name="auteurId"
+                          required
+                        >
+                          <option value="">Choisir un auteur</option>
+                          <option
+                            th:each="user : ${utilisateurs}"
+                            th:value="${user.id}"
+                            th:text="${user.login}"
+                            th:selected="${article.auteur != null and article.auteur.id == user.id}"
+                          ></option>
+                        </select>
+                      </div>
+
+                      <!-- Résumé -->
+                      <div class="col-md-12 mb-3">
+                        <label for="resume" class="form-label">
+                          <i class="fas fa-align-left"></i>
+                          Résumé <span class="required">*</span>
+                        </label>
+                        <textarea
+                          class="form-control"
+                          id="resume"
+                          name="resume"
+                          th:field="*{resume}"
+                          rows="3"
+                          placeholder="Rédigez un résumé de l'article (maximum 1000 caractères)"
+                          maxlength="1000"
+                          required
+                        ></textarea>
+                        <div class="char-counter" id="resumeCounter">
+                          <span class="current">0</span>
+                          <span class="max">/ 1000 caractères</span>
+                        </div>
+                      </div>
+
+                      <!-- Contenu -->
+                      <div class="col-md-12 mb-4">
+                        <label for="contenu" class="form-label">
+                          <i class="fas fa-file-alt"></i>
+                          Contenu <span class="required">*</span>
+                        </label>
+                        <textarea
+                          class="form-control"
+                          id="contenu"
+                          name="contenu"
+                          th:field="*{contenu}"
+                          rows="12"
+                          placeholder="Rédigez le contenu complet de l'article"
+                          required
+                        ></textarea>
+                      </div>
+                    </div>
+
+                    <!-- Boutons d'action -->
+                    <div class="form-actions">
+                      <a href="/admin/articles" class="form-btn cancel">
+                        <i class="fas fa-times"></i>
+                        Annuler
+                      </a>
+                      <button
+                        type="submit"
+                        class="form-btn submit"
+                        id="submitBtn"
+                      >
+                        <i class="fas fa-check"></i>
+                        <span
+                          th:text="${article.id != null ? 'Modifier article' : 'Créer article'}"
+                          >Créer article</span
+                        >
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      function toggleDropdown() {
+        const dropdown = document.getElementById("userDropdown");
+        dropdown.classList.toggle("show");
+      }
+
+      // Fermer le dropdown quand on clique ailleurs
+      window.onclick = function (event) {
+        if (
+          !event.target.matches(".user-dropdown-toggle") &&
+          !event.target.matches(".user-dropdown-toggle *")
+        ) {
+          const dropdowns =
+            document.getElementsByClassName("user-dropdown-menu");
+          for (let dropdown of dropdowns) {
+            if (dropdown.classList.contains("show")) {
+              dropdown.classList.remove("show");
+            }
+          }
+        }
+      };
+
+      // Compteur de caractères pour le résumé
+      document.addEventListener("DOMContentLoaded", function () {
+        const resumeTextarea = document.getElementById("resume");
+        const resumeCounter = document.getElementById("resumeCounter");
+        const currentSpan = resumeCounter.querySelector(".current");
+
+        function updateCounter() {
+          const currentLength = resumeTextarea.value.length;
+          const maxLength = 1000;
+          currentSpan.textContent = currentLength;
+
+          // Mise à jour des classes CSS selon la longueur
+          resumeCounter.classList.remove("warning", "danger");
+          if (currentLength > maxLength * 0.8) {
+            resumeCounter.classList.add("warning");
+          }
+          if (currentLength > maxLength * 0.95) {
+            resumeCounter.classList.add("danger");
+          }
+        }
+
+        resumeTextarea.addEventListener("input", updateCounter);
+        updateCounter(); // Initialisation
+
+        // Validation du formulaire
+        const form = document.getElementById("articleForm");
+        const submitBtn = document.getElementById("submitBtn");
+
+        form.addEventListener("submit", function (e) {
+          const titre = document.getElementById("titre").value.trim();
+          const categoryId = document.getElementById("categoryId").value;
+          const auteurId = document.getElementById("auteurId").value;
+          const resume = document.getElementById("resume").value.trim();
+          const contenu = document.getElementById("contenu").value.trim();
+
+          if (!titre || !categoryId || !auteurId || !resume || !contenu) {
+            e.preventDefault();
+            alert("Veuillez remplir tous les champs obligatoires.");
+            return false;
+          }
+
+          if (resume.length > 1000) {
+            e.preventDefault();
+            alert("Le résumé ne peut pas dépasser 1000 caractères.");
+            return false;
+          }
+
+          // Désactiver le bouton pour éviter les soumissions multiples
+          submitBtn.disabled = true;
+          submitBtn.innerHTML =
+            '<i class="fas fa-spinner fa-spin"></i> Enregistrement...';
+        });
+      });
+    </script>
+  </body>
+</html>

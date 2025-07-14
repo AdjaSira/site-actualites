@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Administration - Site d'Actualités</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        color: #2c3e50;
+      }
+
+      /* Header amélioré */
+      .admin-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1rem 0;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+
+      .admin-header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .admin-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white;
+        text-decoration: none;
+      }
+
+      .admin-brand:hover {
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+      }
+
+      .admin-brand i {
+        font-size: 1.8rem;
+        background: linear-gradient(45deg, #fff, #f0f0f0);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .admin-title {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .admin-nav {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .admin-nav-link {
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .admin-nav-link:hover {
+        color: white;
+        background: rgba(255, 255, 255, 0.1);
+        text-decoration: none;
+        transform: translateY(-1px);
+      }
+
+      /* Sidebar améliorée */
+      .admin-sidebar {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 0 16px 16px 0;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        min-height: calc(100vh - 80px);
+        position: sticky;
+        top: 80px;
+      }
+
+      .sidebar-nav {
+        padding: 2rem 0;
+      }
+
+      .sidebar-nav-item {
+        margin-bottom: 0.5rem;
+      }
+
+      .sidebar-nav-link {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 1.5rem;
+        color: #6c757d;
+        text-decoration: none;
+        border-radius: 8px;
+        margin: 0 1rem;
+        transition: all 0.3s ease;
+        font-weight: 500;
+      }
+
+      .sidebar-nav-link:hover,
+      .sidebar-nav-link.active {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        text-decoration: none;
+        transform: translateX(5px);
+      }
+
+      .sidebar-nav-link i {
+        width: 20px;
+        text-align: center;
+      }
+
+      /* Contenu principal */
+      .admin-main {
+        padding: 2rem;
+        min-height: calc(100vh - 80px);
+      }
+
+      .admin-page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .admin-page-title i {
+        color: #667eea;
+        font-size: 2rem;
+      }
+
+      /* Alertes */
+      .alert {
+        border: none;
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        font-weight: 500;
+      }
+
+      .alert-success {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+      }
+
+      .alert-danger {
+        background: linear-gradient(135deg, #dc3545, #fd7e14);
+        color: white;
+      }
+
+      /* Cartes de statistiques */
+      .stats-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+      }
+
+      .stats-header {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .stats-header i {
+        color: #667eea;
+      }
+
+      .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .stat-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="stat-pattern" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23stat-pattern)"/></svg>');
+        pointer-events: none;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
+      }
+
+      .stat-content {
+        position: relative;
+        z-index: 1;
+      }
+
+      .stat-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        opacity: 0.9;
+      }
+
+      .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+      }
+
+      .stat-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        border-radius: 25px;
+        padding: 0.5rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+      }
+
+      .stat-btn:hover {
+        background: white;
+        color: #667eea;
+        text-decoration: none;
+        transform: translateY(-2px);
+      }
+
+      /* Tableau des articles récents */
+      .recent-articles-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+        overflow: hidden;
+      }
+
+      .recent-articles-header {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 1.5rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .recent-articles-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .recent-articles-link {
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+      }
+
+      .recent-articles-link:hover {
+        color: white;
+        text-decoration: none;
+      }
+
+      .recent-articles-body {
+        padding: 2rem;
+      }
+
+      .table {
+        margin-bottom: 0;
+      }
+
+      .table th {
+        background: rgba(102, 126, 234, 0.1);
+        border: none;
+        color: #2c3e50;
+        font-weight: 600;
+        padding: 1rem;
+      }
+
+      .table td {
+        border: none;
+        padding: 1rem;
+        vertical-align: middle;
+      }
+
+      .table tbody tr {
+        transition: all 0.3s ease;
+      }
+
+      .table tbody tr:hover {
+        background: rgba(102, 126, 234, 0.05);
+        transform: scale(1.01);
+      }
+
+      .action-btn {
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        margin: 0.25rem;
+      }
+
+      .action-btn.edit {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+      }
+
+      .action-btn.delete {
+        background: linear-gradient(135deg, #dc3545, #fd7e14);
+        color: white;
+      }
+
+      .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        text-decoration: none;
+      }
+
+      /* Actions rapides */
+      .quick-actions-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+      }
+
+      .quick-actions-header {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 1.5rem 2rem;
+        font-size: 1.3rem;
+        font-weight: 600;
+      }
+
+      .quick-actions-body {
+        padding: 2rem;
+      }
+
+      .quick-action-btn {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border: none;
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        font-weight: 600;
+        color: white;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0.5rem;
+      }
+
+      .quick-action-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        color: white;
+        text-decoration: none;
+      }
+
+      .quick-action-btn.secondary {
+        background: linear-gradient(135deg, #6c757d, #495057);
+      }
+
+      .quick-action-btn.secondary:hover {
+        box-shadow: 0 10px 25px rgba(108, 117, 125, 0.3);
+      }
+
+      /* Message vide */
+      .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        color: #6c757d;
+      }
+
+      .empty-state i {
+        font-size: 3rem;
+        color: #667eea;
+        margin-bottom: 1rem;
+      }
+
+      .empty-state h4 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .admin-header-content {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .admin-nav {
+          justify-content: center;
+        }
+
+        .admin-main {
+          padding: 1rem;
+        }
+
+        .admin-page-title {
+          font-size: 2rem;
+        }
+
+        .stat-card {
+          margin-bottom: 1rem;
+        }
+
+        .recent-articles-header {
+          flex-direction: column;
+          gap: 1rem;
+          text-align: center;
+        }
+
+        .table-responsive {
+          font-size: 0.9rem;
+        }
+
+        .action-btn {
+          padding: 0.4rem 0.8rem;
+          font-size: 0.9rem;
+        }
+
+        .quick-action-btn {
+          width: 100%;
+          justify-content: center;
+          margin: 0.25rem 0;
+        }
+      }
+
+      /* Animations */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .stats-container {
+        animation: fadeInUp 0.6s ease-out;
+      }
+
+      .recent-articles-container {
+        animation: fadeInUp 0.6s ease-out 0.2s both;
+      }
+
+      .quick-actions-container {
+        animation: fadeInUp 0.6s ease-out 0.4s both;
+      }
+
+      /* Effets de focus améliorés */
+      .quick-action-btn:focus,
+      .action-btn:focus,
+      .stat-btn:focus {
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="admin-header">
+      <div class="container-fluid">
+        <div class="admin-header-content">
+          <a href="/" class="admin-brand">
+            <i class="fas fa-newspaper"></i>
+            Site d'Actualités
+          </a>
+          <h1 class="admin-title">Administration</h1>
+          <nav class="admin-nav">
+            <a href="/" class="admin-nav-link">
+              <i class="fas fa-home"></i>
+              Retour au site
+            </a>
+            <a href="/logout" class="admin-nav-link">
+              <i class="fas fa-sign-out-alt"></i>
+              Déconnexion
+            </a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <div class="container-fluid">
+      <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-3 col-lg-2 d-md-block admin-sidebar">
+          <div class="sidebar-nav">
+            <ul class="nav flex-column">
+              <li class="sidebar-nav-item">
+                <a class="sidebar-nav-link active" href="/admin">
+                  <i class="fas fa-tachometer-alt"></i>
+                  Dashboard
+                </a>
+              </li>
+              <li class="sidebar-nav-item">
+                <a class="sidebar-nav-link" href="/admin/articles">
+                  <i class="fas fa-newspaper"></i>
+                  Articles
+                </a>
+              </li>
+              <li class="sidebar-nav-item">
+                <a class="sidebar-nav-link" href="/admin/categories">
+                  <i class="fas fa-tags"></i>
+                  Catégories
+                </a>
+              </li>
+              <li class="sidebar-nav-item">
+                <a class="sidebar-nav-link" href="/admin/utilisateurs">
+                  <i class="fas fa-users"></i>
+                  Utilisateurs
+                </a>
+              </li>
+              <li class="sidebar-nav-item">
+                <a class="sidebar-nav-link" href="/admin/tokens">
+                  <i class="fas fa-key"></i>
+                  Jetons
+                </a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+
+        <!-- Contenu principal -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 admin-main">
+          <h1 class="admin-page-title">
+            <i class="fas fa-tachometer-alt"></i>
+            Dashboard Administration
+          </h1>
+
+          <!-- Alertes -->
+          <div
+            th:if="${succes}"
+            class="alert alert-success"
+            th:text="${succes}"
+          ></div>
+          <div
+            th:if="${erreur}"
+            class="alert alert-danger"
+            th:text="${erreur}"
+          ></div>
+
+          <!-- Statistiques -->
+          <div class="stats-container">
+            <div class="stats-header">
+              <i class="fas fa-chart-bar"></i>
+              Vue d'ensemble
+            </div>
+            <div class="row">
+              <div class="col-md-4">
+                <div class="stat-card">
+                  <div class="stat-content">
+                    <div class="stat-title">
+                      <i class="fas fa-newspaper me-1"></i>Articles
+                    </div>
+                    <div class="stat-value" th:text="${nombreArticles}">0</div>
+                    <a href="/admin/articles" class="stat-btn">
+                      <i class="fas fa-eye me-1"></i>Voir
+                    </a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="stat-card">
+                  <div class="stat-content">
+                    <div class="stat-title">
+                      <i class="fas fa-tags me-1"></i>Catégories
+                    </div>
+                    <div class="stat-value" th:text="${nombreCategories}">
+                      0
+                    </div>
+                    <a href="/admin/categories" class="stat-btn">
+                      <i class="fas fa-eye me-1"></i>Voir
+                    </a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="stat-card">
+                  <div class="stat-content">
+                    <div class="stat-title">
+                      <i class="fas fa-users me-1"></i>Utilisateurs
+                    </div>
+                    <div class="stat-value" th:text="${nombreUtilisateurs}">
+                      0
+                    </div>
+                    <a href="/admin/utilisateurs" class="stat-btn">
+                      <i class="fas fa-eye me-1"></i>Voir
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Articles récents -->
+          <div class="recent-articles-container">
+            <div class="recent-articles-header">
+              <h3 class="recent-articles-title">
+                <i class="fas fa-clock"></i>
+                Articles récents
+              </h3>
+              <a href="/admin/articles" class="recent-articles-link">
+                <i class="fas fa-external-link-alt me-1"></i>Voir tous
+              </a>
+            </div>
+            <div class="recent-articles-body">
+              <div th:if="${articlesRecents.size() > 0}">
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th><i class="fas fa-heading me-1"></i>Titre</th>
+                        <th><i class="fas fa-user me-1"></i>Auteur</th>
+                        <th><i class="fas fa-tag me-1"></i>Catégorie</th>
+                        <th><i class="fas fa-calendar me-1"></i>Date</th>
+                        <th><i class="fas fa-cogs me-1"></i>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr th:each="article : ${articlesRecents}">
+                        <td th:text="${article.titre}"></td>
+                        <td th:text="${article.auteur.login}"></td>
+                        <td th:text="${article.category.nom}"></td>
+                        <td
+                          th:text="${#temporals.format(article.dateCreation, 'dd/MM/yyyy HH:mm')}"
+                        ></td>
+                        <td>
+                          <a
+                            th:href="@{/admin/articles/modifier/{id}(id=${article.id})}"
+                            class="action-btn edit"
+                          >
+                            <i class="fas fa-edit me-1"></i>Modifier
+                          </a>
+                          <form
+                            th:action="@{/admin/articles/supprimer/{id}(id=${article.id})}"
+                            method="post"
+                            style="display: inline"
+                          >
+                            <button type="submit" class="action-btn delete">
+                              <i class="fas fa-trash me-1"></i>Supprimer
+                            </button>
+                          </form>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div th:if="${articlesRecents.size() == 0}" class="empty-state">
+                <i class="fas fa-newspaper"></i>
+                <h4>Aucun article récent</h4>
+                <p>Commencez par créer votre premier article</p>
+                <a href="/admin/articles/nouveau" class="quick-action-btn">
+                  <i class="fas fa-plus me-1"></i>Créer le premier article
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions rapides -->
+          <div class="quick-actions-container">
+            <div class="quick-actions-header">
+              <i class="fas fa-bolt me-2"></i>Actions rapides
+            </div>
+            <div class="quick-actions-body">
+              <a href="/admin/articles/nouveau" class="quick-action-btn">
+                <i class="fas fa-plus"></i>Nouvel article
+              </a>
+              <a href="/admin/categories/nouvelle" class="quick-action-btn">
+                <i class="fas fa-tag"></i>Nouvelle catégorie
+              </a>
+              <a href="/admin/utilisateurs/nouveau" class="quick-action-btn">
+                <i class="fas fa-user-plus"></i>Nouvel utilisateur
+              </a>
+              <a href="/admin/tokens" class="quick-action-btn">
+                <i class="fas fa-key"></i>Gérer les jetons
+              </a>
+              <a href="/" class="quick-action-btn secondary">
+                <i class="fas fa-external-link-alt"></i>Voir le site
+              </a>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

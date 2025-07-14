@@ -1,0 +1,102 @@
+<definitions name="UserService"
+             targetNamespace="http://siteactualites.com/soap/users"
+             xmlns="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns:tns="http://siteactualites.com/soap/users"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <types>
+        <xsd:schema>
+            <xsd:import namespace="http://siteactualites.com/soap/users" schemaLocation="../xsd/users.xsd"/>
+        </xsd:schema>
+    </types>
+
+    <message name="ListUsersRequest">
+        <part name="parameters" element="tns:ListUsersRequest"/>
+    </message>
+    <message name="ListUsersResponse">
+        <part name="parameters" element="tns:ListUsersResponse"/>
+    </message>
+    <message name="CreateUserRequest">
+        <part name="parameters" element="tns:CreateUserRequest"/>
+    </message>
+    <message name="CreateUserResponse">
+        <part name="parameters" element="tns:CreateUserResponse"/>
+    </message>
+    <message name="UpdateUserRequest">
+        <part name="parameters" element="tns:UpdateUserRequest"/>
+    </message>
+    <message name="UpdateUserResponse">
+        <part name="parameters" element="tns:UpdateUserResponse"/>
+    </message>
+    <message name="DeleteUserRequest">
+        <part name="parameters" element="tns:DeleteUserRequest"/>
+    </message>
+    <message name="DeleteUserResponse">
+        <part name="parameters" element="tns:DeleteUserResponse"/>
+    </message>
+    
+    <portType name="UserServicePortType">
+        <operation name="ListUsers">
+            <input message="tns:ListUsersRequest"/>
+            <output message="tns:ListUsersResponse"/>
+        </operation>
+        <operation name="CreateUser">
+            <input message="tns:CreateUserRequest"/>
+            <output message="tns:CreateUserResponse"/>
+        </operation>
+        <operation name="UpdateUser">
+            <input message="tns:UpdateUserRequest"/>
+            <output message="tns:UpdateUserResponse"/>
+        </operation>
+        <operation name="DeleteUser">
+            <input message="tns:DeleteUserRequest"/>
+            <output message="tns:DeleteUserResponse"/>
+        </operation>
+    </portType>
+
+    <binding name="UserServiceBinding" type="tns:UserServicePortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="ListUsers">
+            <soap:operation soapAction="http://siteactualites.com/soap/users/ListUsers"/>
+            <input>
+                <soap:body use="literal"/>
+            </input>
+            <output>
+                <soap:body use="literal"/>
+            </output>
+        </operation>
+        <operation name="CreateUser">
+            <soap:operation soapAction="http://siteactualites.com/soap/users/CreateUser"/>
+            <input>
+                <soap:body use="literal"/>
+            </input>
+            <output>
+                <soap:body use="literal"/>
+            </output>
+        </operation>
+        <operation name="UpdateUser">
+            <soap:operation soapAction="http://siteactualites.com/soap/users/UpdateUser"/>
+            <input>
+                <soap:body use="literal"/>
+            </input>
+            <output>
+                <soap:body use="literal"/>
+            </output>
+        </operation>
+        <operation name="DeleteUser">
+            <soap:operation soapAction="http://siteactualites.com/soap/users/DeleteUser"/>
+            <input>
+                <soap:body use="literal"/>
+            </input>
+            <output>
+                <soap:body use="literal"/>
+            </output>
+        </operation>
+    </binding>
+
+    <service name="UserService">
+        <port name="UserServicePort" binding="tns:UserServiceBinding">
+            <soap:address location="http://localhost:8080/ws/users"/>
+        </port>
+    </service>
+</definitions>

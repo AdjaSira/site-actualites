@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestion des Catégories - Administration</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        color: #2c3e50;
+      }
+
+      /* Header amélioré */
+      .admin-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1rem 0;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+
+      .admin-header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .admin-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white;
+        text-decoration: none;
+      }
+
+      .admin-brand:hover {
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+      }
+
+      .admin-brand i {
+        font-size: 1.8rem;
+        background: linear-gradient(45deg, #fff, #f0f0f0);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .admin-title {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .admin-title i {
+        color: #ffd700;
+      }
+
+      .admin-nav {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .user-dropdown {
+        position: relative;
+      }
+
+      .user-dropdown-toggle {
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+      }
+
+      .user-dropdown-toggle:hover {
+        color: white;
+        background: rgba(255, 255, 255, 0.1);
+        text-decoration: none;
+      }
+
+      .user-dropdown-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        min-width: 200px;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s ease;
+      }
+
+      .user-dropdown-menu.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      .user-dropdown-item {
+        display: block;
+        padding: 0.75rem 1rem;
+        color: #2c3e50;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border-radius: 8px;
+        margin: 0.25rem;
+      }
+
+      .user-dropdown-item:hover {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+        text-decoration: none;
+      }
+
+      .user-dropdown-divider {
+        height: 1px;
+        background: #e9ecef;
+        margin: 0.5rem 0;
+      }
+
+      /* Sidebar améliorée */
+      .admin-sidebar {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 0 16px 16px 0;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        min-height: calc(100vh - 80px);
+        position: sticky;
+        top: 80px;
+      }
+
+      .sidebar-nav {
+        padding: 2rem 0;
+      }
+
+      .sidebar-nav-item {
+        margin-bottom: 0.5rem;
+      }
+
+      .sidebar-nav-link {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 1.5rem;
+        color: #6c757d;
+        text-decoration: none;
+        border-radius: 8px;
+        margin: 0 1rem;
+        transition: all 0.3s ease;
+        font-weight: 500;
+      }
+
+      .sidebar-nav-link:hover,
+      .sidebar-nav-link.active {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        text-decoration: none;
+        transform: translateX(5px);
+      }
+
+      .sidebar-nav-link i {
+        width: 20px;
+        text-align: center;
+      }
+
+      /* Contenu principal */
+      .admin-main {
+        padding: 2rem;
+        min-height: calc(100vh - 80px);
+      }
+
+      .admin-page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+      }
+
+      .admin-page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin: 0;
+      }
+
+      .admin-page-title i {
+        color: #667eea;
+        font-size: 2rem;
+      }
+
+      .admin-action-btn {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        font-weight: 600;
+        color: white;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .admin-action-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(40, 167, 69, 0.3);
+        color: white;
+        text-decoration: none;
+      }
+
+      /* Alertes */
+      .alert {
+        border: none;
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .alert-success {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+      }
+
+      .alert-danger {
+        background: linear-gradient(135deg, #dc3545, #fd7e14);
+        color: white;
+      }
+
+      .alert .btn-close {
+        filter: brightness(0) invert(1);
+      }
+
+      /* Statistiques */
+      .stats-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+      }
+
+      .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+      }
+
+      .stats-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #28a745;
+        margin-bottom: 0.5rem;
+      }
+
+      .stats-label {
+        color: #6c757d;
+        font-weight: 500;
+      }
+
+      /* Cartes de catégories */
+      .category-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border: none;
+        overflow: hidden;
+      }
+
+      .category-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      }
+
+      .category-header {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .category-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .category-id {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border-radius: 20px;
+        padding: 0.25rem 0.75rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+
+      .category-body {
+        padding: 1.5rem;
+      }
+
+      .category-description {
+        color: #6c757d;
+        margin-bottom: 1rem;
+        line-height: 1.6;
+      }
+
+      .category-date {
+        color: #6c757d;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .category-actions {
+        padding: 1rem 1.5rem;
+        background: rgba(248, 249, 250, 0.5);
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      .category-btn {
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0.25rem;
+        font-size: 0.9rem;
+      }
+
+      .category-btn.view {
+        background: linear-gradient(135deg, #17a2b8, #20c997);
+        color: white;
+      }
+
+      .category-btn.edit {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+      }
+
+      .category-btn.delete {
+        background: linear-gradient(135deg, #dc3545, #fd7e14);
+        color: white;
+      }
+
+      .category-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        text-decoration: none;
+      }
+
+      /* Tableau alternatif */
+      .table-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        margin-top: 2rem;
+      }
+
+      .table-header {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 1.5rem 2rem;
+        font-size: 1.3rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .table-body {
+        padding: 2rem;
+      }
+
+      .table {
+        margin-bottom: 0;
+      }
+
+      .table th {
+        background: rgba(102, 126, 234, 0.1);
+        border: none;
+        color: #2c3e50;
+        font-weight: 600;
+        padding: 1rem;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .table td {
+        border: none;
+        padding: 1rem;
+        vertical-align: middle;
+      }
+
+      .table tbody tr {
+        transition: all 0.3s ease;
+      }
+
+      .table tbody tr:hover {
+        background: rgba(102, 126, 234, 0.05);
+        transform: scale(1.01);
+      }
+
+      .category-badge {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        border-radius: 20px;
+        padding: 0.25rem 0.75rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+
+      .table-action-btn {
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 35px;
+        height: 35px;
+        margin: 0.25rem;
+      }
+
+      .table-action-btn.view {
+        background: linear-gradient(135deg, #17a2b8, #20c997);
+        color: white;
+      }
+
+      .table-action-btn.edit {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+      }
+
+      .table-action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        text-decoration: none;
+      }
+
+      /* Modal de suppression */
+      .delete-modal .modal-content {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      }
+
+      .delete-modal .modal-header {
+        background: linear-gradient(135deg, #dc3545, #fd7e14);
+        color: white;
+        border-radius: 16px 16px 0 0;
+        border: none;
+      }
+
+      .delete-modal .modal-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .delete-modal .modal-body {
+        padding: 2rem;
+        text-align: center;
+      }
+
+      .delete-modal .modal-footer {
+        border: none;
+        padding: 1.5rem 2rem;
+        gap: 1rem;
+      }
+
+      .delete-modal .btn {
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+      }
+
+      .delete-modal .btn-secondary {
+        background: linear-gradient(135deg, #6c757d, #495057);
+        border: none;
+      }
+
+      .delete-modal .btn-danger {
+        background: linear-gradient(135deg, #dc3545, #fd7e14);
+        border: none;
+      }
+
+      /* Message vide */
+      .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #6c757d;
+      }
+
+      .empty-state i {
+        font-size: 4rem;
+        color: #28a745;
+        margin-bottom: 1.5rem;
+      }
+
+      .empty-state h4 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+      }
+
+      .empty-state p {
+        margin-bottom: 2rem;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .admin-header-content {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .admin-nav {
+          justify-content: center;
+        }
+
+        .admin-main {
+          padding: 1rem;
+        }
+
+        .admin-page-header {
+          flex-direction: column;
+          gap: 1rem;
+          text-align: center;
+        }
+
+        .admin-page-title {
+          font-size: 2rem;
+        }
+
+        .stats-card {
+          margin-bottom: 1rem;
+        }
+
+        .category-header {
+          flex-direction: column;
+          gap: 1rem;
+          text-align: center;
+        }
+
+        .category-actions {
+          text-align: center;
+        }
+
+        .category-btn {
+          width: 100%;
+          justify-content: center;
+          margin: 0.25rem 0;
+        }
+
+        .table-header {
+          text-align: center;
+        }
+
+        .table-responsive {
+          font-size: 0.9rem;
+        }
+
+        .table-action-btn {
+          width: 30px;
+          height: 30px;
+          padding: 0.4rem;
+        }
+
+        .user-dropdown-menu {
+          position: fixed;
+          top: 80px;
+          left: 0;
+          right: 0;
+          border-radius: 0 0 16px 16px;
+        }
+      }
+
+      /* Animations */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .stats-card {
+        animation: fadeInUp 0.6s ease-out;
+      }
+
+      .category-card {
+        animation: fadeInUp 0.6s ease-out 0.2s both;
+      }
+
+      .table-container {
+        animation: fadeInUp 0.6s ease-out 0.4s both;
+      }
+
+      /* Effets de focus améliorés */
+      .category-btn:focus,
+      .table-action-btn:focus {
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="admin-header">
+      <div class="container-fluid">
+        <div class="admin-header-content">
+          <a href="/" class="admin-brand">
+            <i class="fas fa-newspaper"></i>
+            Site d'Actualités
+          </a>
+          <h1 class="admin-title">
+            <i class="fas fa-shield-alt"></i>
+            Administration
+          </h1>
+          <nav class="admin-nav">
+            <div class="user-dropdown">
+              <div class="user-dropdown-toggle" onclick="toggleDropdown()">
+                <i class="fas fa-user-circle"></i>
+                <span th:text="${session.utilisateurConnecte.login}"></span>
+                <i class="fas fa-chevron-down"></i>
+              </div>
+              <div class="user-dropdown-menu" id="userDropdown">
+                <a href="/" class="user-dropdown-item">
+                  <i class="fas fa-home me-2"></i>Retour au site
+                </a>
+                <div class="user-dropdown-divider"></div>
+                <a href="/logout" class="user-dropdown-item">
+                  <i class="fas fa-sign-out-alt me-2"></i>Déconnexion
+                </a>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <div class="container-fluid">
+      <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-3 col-lg-2 d-md-block admin-sidebar">
+          <div class="sidebar-nav">
+            <ul class="nav flex-column">
+              <li class="sidebar-nav-item">
+                <a class="sidebar-nav-link" href="/admin">
+                  <i class="fas fa-tachometer-alt"></i>
+                  Dashboard
+                </a>
+              </li>
+              <li class="sidebar-nav-item">
+                <a class="sidebar-nav-link" href="/admin/articles">
+                  <i class="fas fa-newspaper"></i>
+                  Articles
+                </a>
+              </li>
+              <li class="sidebar-nav-item">
+                <a class="sidebar-nav-link active" href="/admin/categories">
+                  <i class="fas fa-tags"></i>
+                  Catégories
+                </a>
+              </li>
+              <li class="sidebar-nav-item">
+                <a class="sidebar-nav-link" href="/admin/utilisateurs">
+                  <i class="fas fa-users"></i>
+                  Utilisateurs
+                </a>
+              </li>
+              <li class="sidebar-nav-item">
+                <a class="sidebar-nav-link" href="/admin/tokens">
+                  <i class="fas fa-key"></i>
+                  Jetons
+                </a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+
+        <!-- Contenu principal -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 admin-main">
+          <div class="admin-page-header">
+            <h1 class="admin-page-title">
+              <i class="fas fa-tags"></i>
+              Gestion des Catégories
+            </h1>
+            <a href="/admin/categories/nouvelle" class="admin-action-btn">
+              <i class="fas fa-plus"></i>
+              Nouvelle Catégorie
+            </a>
+          </div>
+
+          <!-- Messages d'alerte -->
+          <div
+            th:if="${succes}"
+            class="alert alert-success alert-dismissible fade show"
+            role="alert"
+          >
+            <i class="fas fa-check-circle"></i>
+            <span th:text="${succes}"></span>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="alert"
+            ></button>
+          </div>
+
+          <div
+            th:if="${erreur}"
+            class="alert alert-danger alert-dismissible fade show"
+            role="alert"
+          >
+            <i class="fas fa-exclamation-triangle"></i>
+            <span th:text="${erreur}"></span>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="alert"
+            ></button>
+          </div>
+
+          <!-- Statistiques rapides -->
+          <div class="row mb-4">
+            <div class="col-md-4">
+              <div class="stats-card">
+                <div
+                  class="stats-value"
+                  th:text="${categories != null ? categories.size() : 0}"
+                >
+                  0
+                </div>
+                <div class="stats-label">Catégories au total</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Affichage en cartes -->
+          <div th:if="${categories != null and !categories.empty}">
+            <div class="row">
+              <div
+                class="col-md-6 col-lg-4 mb-4"
+                th:each="category : ${categories}"
+              >
+                <div class="category-card">
+                  <div class="category-header">
+                    <h5 class="category-title">
+                      <i class="fas fa-tag"></i>
+                      <span th:text="${category.nom}"></span>
+                    </h5>
+                    <span
+                      class="category-id"
+                      th:text="'ID: ' + ${category.id}"
+                    ></span>
+                  </div>
+                  <div class="category-body">
+                    <p
+                      class="category-description"
+                      th:text="${category.description}"
+                    ></p>
+                    <div class="category-date">
+                      <i class="fas fa-calendar"></i>
+                      Créée le
+                      <span
+                        th:text="${#temporals.format(category.dateCreation, 'dd/MM/yyyy')}"
+                      ></span>
+                    </div>
+                  </div>
+                  <div class="category-actions">
+                    <a
+                      th:href="@{/categorie/{id}(id=${category.id})}"
+                      class="category-btn view"
+                      title="Voir les articles"
+                      target="_blank"
+                    >
+                      <i class="fas fa-eye"></i> Voir
+                    </a>
+                    <a
+                      th:href="@{/admin/categories/modifier/{id}(id=${category.id})}"
+                      class="category-btn edit"
+                      title="Modifier"
+                    >
+                      <i class="fas fa-edit"></i> Modifier
+                    </a>
+                    <button
+                      type="button"
+                      class="category-btn delete"
+                      title="Supprimer"
+                      data-bs-toggle="modal"
+                      th:data-bs-target="'#deleteModal' + ${category.id}"
+                    >
+                      <i class="fas fa-trash"></i> Supprimer
+                    </button>
+
+                    <!-- Modal de confirmation de suppression -->
+                    <div
+                      class="modal fade delete-modal"
+                      th:id="'deleteModal' + ${category.id}"
+                      tabindex="-1"
+                    >
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title">
+                              <i class="fas fa-exclamation-triangle"></i>
+                              Confirmer la suppression
+                            </h5>
+                            <button
+                              type="button"
+                              class="btn-close"
+                              data-bs-dismiss="modal"
+                            ></button>
+                          </div>
+                          <div class="modal-body">
+                            <p>
+                              Êtes-vous sûr de vouloir supprimer la catégorie :
+                            </p>
+                            <strong th:text="${category.nom}"></strong>
+                            <p class="text-warning mt-2">
+                              <i class="fas fa-exclamation-triangle me-1"></i>
+                              Attention : Tous les articles de cette catégorie
+                              seront également affectés !
+                            </p>
+                            <p class="text-danger">
+                              <i class="fas fa-exclamation-circle me-1"></i>
+                              Cette action est irréversible !
+                            </p>
+                          </div>
+                          <div class="modal-footer">
+                            <button
+                              type="button"
+                              class="btn btn-secondary"
+                              data-bs-dismiss="modal"
+                            >
+                              <i class="fas fa-times me-1"></i>Annuler
+                            </button>
+                            <form
+                              th:action="@{/admin/categories/supprimer/{id}(id=${category.id})}"
+                              method="post"
+                              class="d-inline"
+                            >
+                              <input
+                                type="hidden"
+                                th:name="${_csrf.parameterName}"
+                                th:value="${_csrf.token}"
+                              />
+                              <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-1"></i>Supprimer
+                              </button>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Message si aucune catégorie -->
+          <div
+            th:if="${categories == null or categories.empty}"
+            class="empty-state"
+          >
+            <i class="fas fa-tags"></i>
+            <h4>Aucune catégorie trouvée</h4>
+            <p>
+              Commencez par créer votre première catégorie pour organiser vos
+              articles.
+            </p>
+            <a href="/admin/categories/nouvelle" class="admin-action-btn">
+              <i class="fas fa-plus"></i>Créer une catégorie
+            </a>
+          </div>
+
+          <!-- Tableau alternatif -->
+          <div
+            th:if="${categories != null and !categories.empty}"
+            class="table-container"
+          >
+            <div class="table-header">
+              <i class="fas fa-table"></i>
+              Vue tableau
+            </div>
+            <div class="table-body">
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th><i class="fas fa-hashtag me-1"></i>ID</th>
+                      <th><i class="fas fa-tag me-1"></i>Nom</th>
+                      <th><i class="fas fa-align-left me-1"></i>Description</th>
+                      <th>
+                        <i class="fas fa-calendar me-1"></i>Date de création
+                      </th>
+                      <th><i class="fas fa-cogs me-1"></i>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr th:each="category : ${categories}">
+                      <td th:text="${category.id}"></td>
+                      <td>
+                        <span
+                          class="category-badge"
+                          th:text="${category.nom}"
+                        ></span>
+                      </td>
+                      <td th:text="${category.description}"></td>
+                      <td
+                        th:text="${#temporals.format(category.dateCreation, 'dd/MM/yyyy HH:mm')}"
+                      ></td>
+                      <td>
+                        <a
+                          th:href="@{/categorie/{id}(id=${category.id})}"
+                          class="table-action-btn view"
+                          title="Voir les articles"
+                          target="_blank"
+                        >
+                          <i class="fas fa-eye"></i>
+                        </a>
+                        <a
+                          th:href="@{/admin/categories/modifier/{id}(id=${category.id})}"
+                          class="table-action-btn edit"
+                          title="Modifier"
+                        >
+                          <i class="fas fa-edit"></i>
+                        </a>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      function toggleDropdown() {
+        const dropdown = document.getElementById("userDropdown");
+        dropdown.classList.toggle("show");
+      }
+
+      // Fermer le dropdown quand on clique ailleurs
+      window.onclick = function (event) {
+        if (
+          !event.target.matches(".user-dropdown-toggle") &&
+          !event.target.matches(".user-dropdown-toggle *")
+        ) {
+          const dropdowns =
+            document.getElementsByClassName("user-dropdown-menu");
+          for (let dropdown of dropdowns) {
+            if (dropdown.classList.contains("show")) {
+              dropdown.classList.remove("show");
+            }
+          }
+        }
+      };
+    </script>
+  </body>
+</html>
