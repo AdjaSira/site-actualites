@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://siteactualites.com/soap/users"
+           xmlns:tns="http://siteactualites.com/soap/users"
+           elementFormDefault="qualified">
+
+    <xs:complexType name="user">
+        <xs:sequence>
+            <xs:element name="id" type="xs:long" minOccurs="0"/>
+            <xs:element name="login" type="xs:string" minOccurs="0"/>
+            <xs:element name="motDePasse" type="xs:string" minOccurs="0"/> <!-- Ajouté -->
+            <xs:element name="email" type="xs:string" minOccurs="0"/>
+            <xs:element name="role" type="xs:string" minOccurs="0"/>
+            <xs:element name="dateCreation" type="xs:dateTime" minOccurs="0"/> <!-- Ajouté -->
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="listUsersRequest">
+        <xs:sequence>
+            <xs:element name="token" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="listUsersResponse">
+        <xs:sequence>
+            <xs:element name="user" type="tns:user" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="createUserRequest">
+        <xs:sequence>
+            <xs:element name="token" type="xs:string"/>
+            <xs:element name="login" type="xs:string"/>
+            <xs:element name="motDePasse" type="xs:string"/>
+            <xs:element name="email" type="xs:string" minOccurs="0"/>
+            <xs:element name="role" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="createUserResponse">
+        <xs:sequence>
+            <xs:element name="user" type="tns:user" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="updateUserRequest">
+        <xs:sequence>
+            <xs:element name="token" type="xs:string"/>
+            <xs:element name="id" type="xs:long"/>
+            <xs:element name="login" type="xs:string"/>
+            <xs:element name="motDePasse" type="xs:string" minOccurs="0"/>
+            <xs:element name="email" type="xs:string" minOccurs="0"/>
+            <xs:element name="role" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="updateUserResponse">
+        <xs:sequence>
+            <xs:element name="user" type="tns:user" minOccurs="0"/>
+            <xs:element name="success" type="xs:boolean"/>
+            <xs:element name="message" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="deleteUserRequest">
+        <xs:sequence>
+            <xs:element name="token" type="xs:string"/>
+            <xs:element name="id" type="xs:long"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="deleteUserResponse">
+        <xs:sequence>
+            <xs:element name="success" type="xs:boolean"/>
+            <xs:element name="message" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Définitions des éléments utilisés dans le WSDL -->
+    <xs:element name="ListUsersRequest" type="tns:listUsersRequest"/>
+    <xs:element name="ListUsersResponse" type="tns:listUsersResponse"/>
+    <xs:element name="CreateUserRequest" type="tns:createUserRequest"/>
+    <xs:element name="CreateUserResponse" type="tns:createUserResponse"/>
+    <xs:element name="UpdateUserRequest" type="tns:updateUserRequest"/>
+    <xs:element name="UpdateUserResponse" type="tns:updateUserResponse"/>
+    <xs:element name="DeleteUserRequest" type="tns:deleteUserRequest"/>
+    <xs:element name="DeleteUserResponse" type="tns:deleteUserResponse"/>
+    
+</xs:schema>
